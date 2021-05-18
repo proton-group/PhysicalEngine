@@ -1,12 +1,16 @@
 #level 1
-from Engine import physics
+from Engine import physics, body
 import sys
-from PySide6.QtCore import Qt, QRect, QEvent
+import ast
+from PySide6.QtCore import Qt, QRect, QEvent, QTimer
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QPushButton
 from PySide6.QtGui import QPainter, QColor, QFont, QPen, QIcon, QImage, QFont
+#rober serjic algoritms curs
+
 class level(QMainWindow):
-    def __init__(self,app, width):
+    def __init__(self, app, width):
         super().__init__()
+        self.check = True
         self.setWindowTitle("Level1")
         self.width = width
         self.pos = []
@@ -14,14 +18,20 @@ class level(QMainWindow):
         self.num = 0
         self.pause = True
         self.p = physics()
+        self.closebuttons()
+        self.backplan = self.loadstate("backplan.txt")
+        self.time = QTimer(self)
+        self.time.start(10)
+        self.time.timeout.connect(self.timer)
+        self.update()
 
-    def buttonsl(self):
-        exbut = QPushButton("<-", self)
+    def closebuttons(self):
+        self.closebut = QPushButton("<-", self)
 
-        exbut.setStyleSheet("background-color: blue")
-        exbut.setFixedSize(100, 50)
-        exbut.move(100, 0)
-        exbut.clicked.connect(self.closeit)
+        self.closebut.setStyleSheet("background-color: yellow")
+        self.closebut.setFixedSize(100, 50)
+        self.closebut.move(self.width - 100, 0)
+        self.closebut.clicked.connect(self.closeit)
 
     def paintEvent(self, event):
         #try:
@@ -31,29 +41,51 @@ class level(QMainWindow):
         self.painter(qp)
         #except:
             #self.update()
-
-    def painter(self, qp):
-        lastx, lasty = self.pos[0][0], self.pos[0][1]
-        for point in self.pos:
-            qp.drawLine(lastx, lasty, point[0], point[1])
-            lastx, lasty = point[0], point[1]
-        for pos in self.archive:
-            pos = self.p.gravity(pos)
-            if pos != []:
-                lastx, lasty = pos[0][0], pos[0][1]
-                for point in pos:
-                    qp.drawLine(lastx, lasty, point[0], point[1])
-                    lastx, lasty = point[0], point[1]
+            #pass
+            
+    def hexpaint(self, qp, pos):
+        if pos != []:
+            lastx, lasty = pos[0][0], pos[0][1]
+            for point in pos:
+                qp.drawLine(lastx, lasty, point[0], point[1])
+                lastx, lasty = point[0], point[1]
+    
+    def painter(self, qp): # В класс и разбить на функции
+        self.hexpaint(qp, self.pos)
+    
+        for pos in self.backplan:
+            self.hexpaint(qp, pos)
+        #print(self.p.rotation_objects)
+        self.p.set_ang(0.01)
+        positions = self.p.check_collision(self.archive, self.archive, self.backplan)
+        for obj in self.archive:
+            self.hexpaint(qp, obj.pos)
 
     def mouseMoveEvent(self, event):
         self.pos.append((event.x(), event.y()))
-        self.update()
+        #self.update()
 
-    def mousePressEvent(self, event):
-        self.archive.append(self.pos)
+    def mouseReleaseEvent(self, event):
+        new_body = body()
+        new_body.pos = self.pos
+        self.archive.append(new_body)
         self.pos = []
+        self.update()
+        
 
     def closeit(self):
         self.close()
+
+    def savestate(self):
+        f = open("data.txt", "a")
+        f.write(",".join(map(str, self.archive)) + "\n")
+        f.close()
+
+    def loadstate(self, file):
+        f = open(file, "r")
+        return ast.literal_eval(f.read())
         
+    def timer(self):
+        self.update()
+        self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
 

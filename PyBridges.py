@@ -32,9 +32,9 @@ class Window(QMainWindow):
         pass
 
     def level_1(self):
-        self.win = level(app, self.size.width())
-        self.win.showFullScreen()
-        self.win.buttonsl()
+        self.window = level(app, self.size.width())
+        self.window.showFullScreen()
+        self.window.update()
 
     def buttons(self):
         exbut = QPushButton("X", self)
