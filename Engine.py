@@ -1,5 +1,5 @@
 import numpy as np 
-from math import sin, cos
+from math import sin, cos, sqrt
 class body:
     def __init__(self):
         self.pos = []
@@ -14,8 +14,9 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 10 #8
-        self.rot_speed = 0.001
+        self.op_precision = 5 #8
+        self.rot_speed = 0.0001
+        self.update_list = []
 
     def rot_direction_chooser(self, obj):
         if obj.pcollision != False and obj.pcollision != True and obj.rot_check == False:
@@ -71,32 +72,35 @@ class physics:
     def check_collision(self, f_archive, s_archive, t_archive):
         self.check = True
         for id_a in f_archive:
-            for id_b in s_archive:
-                if id_a.pos != id_b.pos:
-                    if self.prop(id_a, id_b.pos):
-                        pass
-                    else:
-                        self.check = False
-                        self.rotation(self.rot_direction_chooser(id_a), id_a)
-                        break
+            if id_a.pcollision != True:
+                for id_b in s_archive:
+                    if id_a.pos != id_b.pos:
+                        if self.prop(id_a, id_b.pos):
+                            pass
+                        else:
+                            self.check = False
+                            self.rotation(self.rot_direction_chooser(id_a), id_a)
+                            break
 
-            for prop_pos in t_archive:
-                if id_a.pos != prop_pos:
-                    if self.prop(id_a, prop_pos):
-                        pass
-                    else:
-                        self.check = False
-                        self.rotation(self.rot_direction_chooser(id_a), id_a)
-                        break
+                for prop_pos in t_archive:
+                    if id_a.pos != prop_pos:
+                        if self.prop(id_a, prop_pos):
+                            pass
+                        else:
+                            self.check = False
+                            self.rotation(self.rot_direction_chooser(id_a), id_a)
+                            break
 
-            if self.check:
-                self.settime(0.5, id_a)
+                if self.check:
+                    self.update_list.append(id_a)
+                else:
+                    #self.gravity(id_a)
+                    pass
+                self.check = True
+            for id_a in self.update_list:
+                self.settime(0.4, id_a)
                 self.gravity(id_a)
-            else:
-                #self.gravity(id_a)
-                pass
-            self.check = True
-
+                self.update_list = []
     def prop(self, obj_a, pos_b): #rotation, numpy for phis
         def overlap(apoints, bpoints):
             return (apoints[0] <= bpoints[0] + self.op_precision and apoints[0] >= bpoints[0] - self.op_precision) and (apoints[1] <= bpoints[1] + self.op_precision and apoints[1] >= bpoints[1] - self.op_precision)
@@ -116,7 +120,10 @@ class physics:
             body.pcollision = cpoint
         else:
             if body.pcollision != cpoint:
-                body.pcollision = True
+                if self.norma(body.pcollision, cpoint) < self.norma(cpoint, self.mass_center(body.pos)):
+                    body.pcollision = cpoint 
+                else:    
+                    body.pcollision = True
     def moution(self, car):
         pass
     
@@ -136,8 +143,15 @@ class physics:
             if point[1] < ymin:
                 ymin = point[1]
         return (xmin, xmax, ymin, ymax)
+
     def check_hitbox(self, hitbox_a, hitbox_b):
         def check_in(x, a, b):
             if a <= x <= b:
                 return x
         return (check_in(hitbox_a[0], hitbox_b[0], hitbox_b[1]) or check_in(hitbox_a[1], hitbox_b[0], hitbox_b[1])) and (check_in(hitbox_a[2], hitbox_b[2], hitbox_b[3]) or check_in(hitbox_a[3], hitbox_b[2], hitbox_b[3]))
+    
+    def norma(self, apoint, bpoint):
+        dx = abs(apoint[0] - bpoint[0])
+        dy = abs(apoint[1] - bpoint[1])
+
+        return sqrt(dx**2 + dy**2)

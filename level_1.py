@@ -27,7 +27,7 @@ class level(QMainWindow):
         #    carbody.pos = carpos
         #    self.carid.append(carbody)
         self.time = QTimer(self)
-        self.time.start(100)
+        self.time.start(10)
         self.time.timeout.connect(self.timer)
         self.update()
 
