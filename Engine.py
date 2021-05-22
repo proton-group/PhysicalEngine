@@ -1,3 +1,4 @@
+#itertools, product
 import numpy as np 
 from math import sin, cos, sqrt
 class body:
@@ -14,7 +15,7 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 5 #8
+        self.op_precision = 8 #8
         self.rot_speed = 0.0001
         self.update_list = []
 
@@ -71,6 +72,7 @@ class physics:
     
     def check_collision(self, f_archive, s_archive, t_archive):
         self.check = True
+        #for x,y in idpoint(f_archive, s_archive):
         for id_a in f_archive:
             if id_a.pcollision != True:
                 for id_b in s_archive:
@@ -80,7 +82,7 @@ class physics:
                         else:
                             self.check = False
                             self.rotation(self.rot_direction_chooser(id_a), id_a)
-                            break
+                            break # завершает сравнение не для всего обхекта, из-за чего он обновляется много раз и проваливается сквозь коллизию
 
                 for prop_pos in t_archive:
                     if id_a.pos != prop_pos:
@@ -124,6 +126,7 @@ class physics:
                     body.pcollision = cpoint 
                 else:    
                     body.pcollision = True
+
     def moution(self, car):
         pass
     
@@ -155,3 +158,9 @@ class physics:
         dy = abs(apoint[1] - bpoint[1])
 
         return sqrt(dx**2 + dy**2)
+    
+    def idpoint(self, f_arh, s_arh):
+        for obj_a in f_arh:
+            for obj_b in s_arh:
+                yield (obj_a, obj_b)
+            
