@@ -76,9 +76,10 @@ class level(QMainWindow):
 
     def mouseReleaseEvent(self, event):
         new_body = body()
-        new_body.pos = self.pos
-        self.archive.append(new_body)
-        self.pos = []
+        if self.pos != []:
+            new_body.pos = self.pos
+            self.archive.append(new_body)
+            self.pos = []
         self.update()
         
     def closeit(self):

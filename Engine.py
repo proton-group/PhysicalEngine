@@ -14,7 +14,7 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 8
+        self.op_precision = 10 #8
         self.rot_speed = 0.001
 
     def rot_direction_chooser(self, obj):
@@ -102,8 +102,6 @@ class physics:
             return (apoints[0] <= bpoints[0] + self.op_precision and apoints[0] >= bpoints[0] - self.op_precision) and (apoints[1] <= bpoints[1] + self.op_precision and apoints[1] >= bpoints[1] - self.op_precision)
         hitbox_a = self.minmax(obj_a.pos) # xmin, xmax, ymin, ymax
         hitbox_b = self.minmax(pos_b)
-        print(hitbox_a)
-        print(hitbox_b)
         check = True
         if self.check_hitbox(hitbox_a, hitbox_b):
             for apoint in obj_a.pos:
