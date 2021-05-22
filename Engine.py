@@ -100,13 +100,17 @@ class physics:
     def prop(self, obj_a, pos_b): #rotation, numpy for phis
         def overlap(apoints, bpoints):
             return (apoints[0] <= bpoints[0] + self.op_precision and apoints[0] >= bpoints[0] - self.op_precision) and (apoints[1] <= bpoints[1] + self.op_precision and apoints[1] >= bpoints[1] - self.op_precision)
-
+        hitbox_a = self.minmax(obj_a.pos) # xmin, xmax, ymin, ymax
+        hitbox_b = self.minmax(pos_b)
+        print(hitbox_a)
+        print(hitbox_b)
         check = True
-        for apoint in obj_a.pos:
-            for bpoint in pos_b:
-                if overlap(apoint, bpoint):
-                    self.add_rotation_object(obj_a, apoint)
-                    check = False
+        if self.check_hitbox(hitbox_a, hitbox_b):
+            for apoint in obj_a.pos:
+                for bpoint in pos_b:
+                    if overlap(apoint, bpoint):
+                        self.add_rotation_object(obj_a, apoint)
+                        check = False
         return check
 
     def add_rotation_object(self, body, cpoint):
@@ -118,7 +122,8 @@ class physics:
     def moution(self, car):
         pass
     
-        def minmax(self, pos):
+    def minmax(self, pos):
+        #print(pos)
         xmin = pos[0][0]
         xmax = 0
         ymin = pos[0][1]
@@ -128,8 +133,13 @@ class physics:
                 xmax = point[0]
             if point[0] < xmin:
                 xmin = point[0]
-            if point[0] > ymax:
-                xmax = point[1]
-            if point[0] < ymin:
-                xmin = point[1]
+            if point[1] > ymax:
+                ymax = point[1]
+            if point[1] < ymin:
+                ymin = point[1]
         return (xmin, xmax, ymin, ymax)
+    def check_hitbox(self, hitbox_a, hitbox_b):
+        def check_in(x, a, b):
+            if a <= x <= b:
+                return x
+        return (check_in(hitbox_a[0], hitbox_b[0], hitbox_b[1]) or check_in(hitbox_a[1], hitbox_b[0], hitbox_b[1])) and (check_in(hitbox_a[2], hitbox_b[2], hitbox_b[3]) or check_in(hitbox_a[3], hitbox_b[2], hitbox_b[3]))

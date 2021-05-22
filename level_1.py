@@ -77,8 +77,6 @@ class level(QMainWindow):
     def mouseReleaseEvent(self, event):
         new_body = body()
         new_body.pos = self.pos
-        new_body.hitbox = self.minmax(self.pos)
-        print(self.minmax(self.pos))
         self.archive.append(new_body)
         self.pos = []
         self.update()
