@@ -20,8 +20,14 @@ class level(QMainWindow):
         self.p = physics()
         self.closebuttons()
         self.backplan = self.loadstate("backplan.txt")
+        carpos = self.loadstate("car.txt") #тапл из двух или трех массивов 
+        self.carid = []
+        #for pos in carpos:
+        #    carbody = body()
+        #    carbody.pos = carpos
+        #    self.carid.append(carbody)
         self.time = QTimer(self)
-        self.time.start(10)
+        self.time.start(100)
         self.time.timeout.connect(self.timer)
         self.update()
 
@@ -55,9 +61,12 @@ class level(QMainWindow):
     
         for pos in self.backplan:
             self.hexpaint(qp, pos)
+        #for obj in self.carid:
+            #self.hexpaint(qp, obj.pos)
         #print(self.p.rotation_objects)
-        self.p.set_ang(0.01)
-        positions = self.p.check_collision(self.archive, self.archive, self.backplan)
+        self.p.check_collision(self.archive, self.archive, self.backplan)
+
+        #self.p.check_collision(self.carid, self.archive, self.backplan)
         for obj in self.archive:
             self.hexpaint(qp, obj.pos)
 
@@ -68,16 +77,17 @@ class level(QMainWindow):
     def mouseReleaseEvent(self, event):
         new_body = body()
         new_body.pos = self.pos
+        new_body.hitbox = self.minmax(self.pos)
+        print(self.minmax(self.pos))
         self.archive.append(new_body)
         self.pos = []
         self.update()
         
-
     def closeit(self):
         self.close()
 
     def savestate(self):
-        f = open("data.txt", "a")
+        f = open("data.txt", "w")
         f.write(",".join(map(str, self.archive)) + "\n")
         f.close()
 
@@ -88,6 +98,5 @@ class level(QMainWindow):
     def timer(self):
         self.update()
         self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
-    def test(self):
-        pass
+
 

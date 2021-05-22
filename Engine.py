@@ -7,21 +7,23 @@ class body:
         self.speed = 0
         self.pcollision = False
         self.rot_check = False
+        self.ang = 0
+        self.hitbox = () # xmin, xmax, ymin, ymax
 
 class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 5
-        self.ang = 0
+        self.op_precision = 8
+        self.rot_speed = 0.001
 
     def rot_direction_chooser(self, obj):
         if obj.pcollision != False and obj.pcollision != True and obj.rot_check == False:
                 cpoint = obj.pcollision
                 center = self.mass_center(obj.pos)
-                if center[1] > cpoint[1]:
+                if center[0] > cpoint[0]:
                     return "right"
-                if center[1] < cpoint[1]:
+                if center[0] < cpoint[0]:
                     return "left"
                 obj.rot_check = True
         else:
@@ -35,20 +37,16 @@ class physics:
         
         return (sumpoint_x/len(points), sumpoint_y/len(points))
 
-    def set_ang(self, ang):
-        self.ang = ang
-    def remove_ang(self, ang):        
-        self.ang = 0
-    def rotation(self, direction, obj, ang): #для левого поворота ументшать угл, а не менять знак
+    def rotation(self, direction, obj): #для левого поворота ументшать угл, а не менять знак
         if obj.pcollision != False and obj.pcollision != True:
             export = []
-            if direction == "left":
-                ang += self.ang
             if direction == "right":
-                ang -= self.ang
+                obj.ang = obj.ang + self.rot_speed
+            if direction == "left":
+                obj.ang = obj.ang - self.rot_speed
             for point in obj.pos:
                 r_point = (point[0] - obj.pcollision[0], point[1] - obj.pcollision[1])
-                export.append(((r_point[0] * cos(ang) - r_point[1] * sin(ang))+obj.pcollision[0], (r_point[0] * sin(ang) + r_point[1] * cos(ang))+obj.pcollision[1]))
+                export.append(((r_point[0] * cos(obj.ang) - r_point[1] * sin(obj.ang))+obj.pcollision[0], (r_point[0] * sin(obj.ang) + r_point[1] * cos(obj.ang))+obj.pcollision[1]))
             obj.pos = export
 
     def setGravConst(self, g):
@@ -79,6 +77,7 @@ class physics:
                         pass
                     else:
                         self.check = False
+                        self.rotation(self.rot_direction_chooser(id_a), id_a)
                         break
 
             for prop_pos in t_archive:
@@ -87,7 +86,7 @@ class physics:
                         pass
                     else:
                         self.check = False
-                        self.rotation(self.rot_direction_chooser(id_a), id_a, self.ang)
+                        self.rotation(self.rot_direction_chooser(id_a), id_a)
                         break
 
             if self.check:
@@ -116,3 +115,21 @@ class physics:
         else:
             if body.pcollision != cpoint:
                 body.pcollision = True
+    def moution(self, car):
+        pass
+    
+        def minmax(self, pos):
+        xmin = pos[0][0]
+        xmax = 0
+        ymin = pos[0][1]
+        ymax = 0
+        for point in pos:
+            if point[0] > xmax:
+                xmax = point[0]
+            if point[0] < xmin:
+                xmin = point[0]
+            if point[0] > ymax:
+                xmax = point[1]
+            if point[0] < ymin:
+                xmin = point[1]
+        return (xmin, xmax, ymin, ymax)
