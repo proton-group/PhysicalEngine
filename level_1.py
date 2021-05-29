@@ -27,7 +27,7 @@ class level(QMainWindow):
         #    carbody.pos = carpos
         #    self.carid.append(carbody)
         self.time = QTimer(self)
-        self.time.start(10)
+        self.time.start(1)
         self.time.timeout.connect(self.timer)
         self.update()
 
@@ -96,6 +96,6 @@ class level(QMainWindow):
         
     def timer(self):
         self.update()
-        self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
+        self.time.start(1) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
 
 

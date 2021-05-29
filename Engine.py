@@ -8,6 +8,7 @@ class body:
         self.speed = 0
         self.pcollision = False
         self.rot_check = False
+        self.cheking = False
         self.ang = 0
         self.hitbox = () # xmin, xmax, ymin, ymax
 
@@ -15,7 +16,7 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 8 #8
+        self.op_precision = 10 #8
         self.rot_speed = 0.0001
         self.update_list = []
 
@@ -39,7 +40,7 @@ class physics:
         
         return (sumpoint_x/len(points), sumpoint_y/len(points))
 
-    def rotation(self, direction, obj): #для левого поворота ументшать угл, а не менять знак
+    def rotation(self, direction, obj): #для левого поворота ументшать угл, а не менять знак, чекать коллизию во время поворота
         if obj.pcollision != False and obj.pcollision != True:
             export = []
             if direction == "right":
@@ -63,46 +64,42 @@ class physics:
     def settime(self, time, obj):
         obj.time = time * self.timespeed
 
-    def gravity(self, obj):
+    def gravity(self, obj, s_archive, t_archive):
         newpos = []
         for point in obj.pos:
             newpos.append((point[0], point[1] + obj.speed * obj.time * (self.g*obj.time**2)/2))
+            if len(newpos) > 2 and newpos[-1][1] - newpos[-2][1] > 1:
+                print(newpos[-1][1] - newpos[-2][1])
+                archeck = [(newpos[-1][0], newpos[-2][1] - dots) for dots in range(int(newpos[-1][1] - newpos[-2][1]))]
+                print(archeck)
+                if self.prop_check(obj, archeck) == True:
+                    newpos[-1][1] = dots
+                    break
+                testbody = body()
+                testbody.pos = archeck
+                for prop_pos in t_archive:
+                    if self.prop_check(testbody, prop_pos) == True:
+                        newpos[-1][1] = dots
+                        break
         obj.pos = newpos
         obj.speed = self.g*obj.time
     
     def check_collision(self, f_archive, s_archive, t_archive):
         self.check = True
+        count = 0
         #for x,y in idpoint(f_archive, s_archive):
+        for id_a, id_b in self.idpoint(f_archive, s_archive):
+            if self.prop_check(id_a, id_b.pos) == True:
+                break
+        for id_a, prop_pos in self.idpoint(f_archive, t_archive):    
+            if self.prop_check(id_a, prop_pos) == True:
+                break
         for id_a in f_archive:
-            if id_a.pcollision != True:
-                for id_b in s_archive:
-                    if id_a.pos != id_b.pos:
-                        if self.prop(id_a, id_b.pos):
-                            pass
-                        else:
-                            self.check = False
-                            self.rotation(self.rot_direction_chooser(id_a), id_a)
-                            break # завершает сравнение не для всего обхекта, из-за чего он обновляется много раз и проваливается сквозь коллизию
+            if id_a.pcollision == False:
+                self.settime(0.5, id_a)
+                self.gravity(id_a, s_archive, t_archive)
 
-                for prop_pos in t_archive:
-                    if id_a.pos != prop_pos:
-                        if self.prop(id_a, prop_pos):
-                            pass
-                        else:
-                            self.check = False
-                            self.rotation(self.rot_direction_chooser(id_a), id_a)
-                            break
-
-                if self.check:
-                    self.update_list.append(id_a)
-                else:
-                    #self.gravity(id_a)
-                    pass
-                self.check = True
-            for id_a in self.update_list:
-                self.settime(0.4, id_a)
-                self.gravity(id_a)
-                self.update_list = []
+                
     def prop(self, obj_a, pos_b): #rotation, numpy for phis
         def overlap(apoints, bpoints):
             return (apoints[0] <= bpoints[0] + self.op_precision and apoints[0] >= bpoints[0] - self.op_precision) and (apoints[1] <= bpoints[1] + self.op_precision and apoints[1] >= bpoints[1] - self.op_precision)
@@ -121,7 +118,7 @@ class physics:
         if body.pcollision == False:
             body.pcollision = cpoint
         else:
-            if body.pcollision != cpoint:
+            if body.pcollision != cpoint and body.pcollision != True:
                 if self.norma(body.pcollision, cpoint) < self.norma(cpoint, self.mass_center(body.pos)):
                     body.pcollision = cpoint 
                 else:    
@@ -161,6 +158,15 @@ class physics:
     
     def idpoint(self, f_arh, s_arh):
         for obj_a in f_arh:
-            for obj_b in s_arh:
-                yield (obj_a, obj_b)
-            
+            if obj_a.pcollision != True:
+                for obj_b in s_arh:
+                        yield (obj_a, obj_b)
+
+    def prop_check(self, id_a, pos_b):
+        if id_a.pos != pos_b:
+            if self.prop(id_a, pos_b):
+                pass
+            else:
+                self.rotation(self.rot_direction_chooser(id_a), id_a)
+                return True
+
