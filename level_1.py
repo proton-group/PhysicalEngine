@@ -22,10 +22,10 @@ class level(QMainWindow):
         self.backplan = self.loadstate("backplan.txt")
         carpos = self.loadstate("car.txt") #тапл из двух или трех массивов 
         self.carid = []
-        #for pos in carpos:
-        #    carbody = body()
-        #    carbody.pos = carpos
-        #    self.carid.append(carbody)
+        for pos in carpos:
+            carbody = body()
+            carbody.pos = pos
+            self.carid.append(carbody)
         self.time = QTimer(self)
         self.time.start(1)
         self.time.timeout.connect(self.timer)
@@ -61,8 +61,16 @@ class level(QMainWindow):
     
         for pos in self.backplan:
             self.hexpaint(qp, pos)
-        #for obj in self.carid:
-            #self.hexpaint(qp, obj.pos)
+
+        self.p.check_collision(self.carid, self.archive, self.backplan)
+        
+        for obj in self.carid:
+            if obj.pcollision:
+                obj = self.p.moution(obj, "up")
+                obj.pcollision = False
+            else:
+                obj = self.p.moution(obj, "right")
+            self.hexpaint(qp, obj.pos)
         #print(self.p.rotation_objects)
         self.p.check_collision(self.archive, self.archive, self.backplan)
 

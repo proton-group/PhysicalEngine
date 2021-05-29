@@ -73,13 +73,13 @@ class physics:
                 archeck = [(newpos[-1][0], newpos[-2][1] - dots) for dots in range(int(newpos[-1][1] - newpos[-2][1]))]
                 print(archeck)
                 if self.prop_check(obj, archeck) == True:
-                    newpos[-1][1] = dots
+                    newpos.pop()
                     break
                 testbody = body()
                 testbody.pos = archeck
                 for prop_pos in t_archive:
                     if self.prop_check(testbody, prop_pos) == True:
-                        newpos[-1][1] = dots
+                        newpos.pop() #откуда дотс ты взял?
                         break
         obj.pos = newpos
         obj.speed = self.g*obj.time
@@ -124,8 +124,17 @@ class physics:
                 else:    
                     body.pcollision = True
 
-    def moution(self, car):
-        pass
+    def moution(self, car_part, direction):
+        newpos = []
+        if direction == "up":
+            for point in car_part.pos:
+                newpos.append((point[0], point[1]-10))
+            car_part.pos = newpos
+        if direction == "right":
+            for point in car_part.pos:
+                newpos.append((point[0] + 2, point[1]))
+            car_part.pos = newpos
+        return car_part
     
     def minmax(self, pos):
         #print(pos)
