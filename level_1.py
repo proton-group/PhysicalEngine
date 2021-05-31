@@ -63,10 +63,10 @@ class level(QMainWindow):
             self.hexpaint(qp, pos)
 
         self.p.check_collision(self.carid, self.archive, self.backplan)
-        
+
         for obj in self.carid:
             if obj.pcollision:
-                obj = self.p.moution(obj, "up")
+                obj = self.p.moution(obj, "up") #сделать, только если проп с колесами, чтобы не обрабытывть фронт удары
                 obj.pcollision = False
             else:
                 obj = self.p.moution(obj, "right")

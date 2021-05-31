@@ -40,7 +40,7 @@ class physics:
         
         return (sumpoint_x/len(points), sumpoint_y/len(points))
 
-    def rotation(self, direction, obj): #для левого поворота ументшать угл, а не менять знак, чекать коллизию во время поворота
+    def rotation(self, direction, obj): #для левого поворота ументшать угол, а не менять знак, чекать коллизию во время поворота
         if obj.pcollision != False and obj.pcollision != True:
             export = []
             if direction == "right":
