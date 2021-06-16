@@ -21,11 +21,15 @@ class level(QMainWindow):
         self.closebuttons()
         self.backplan = self.loadstate("backplan.txt")
         carpos = self.loadstate("car.txt") #тапл из двух или трех массивов 
-        self.carid = []
-        for pos in carpos:
-            carbody = body()
-            carbody.pos = pos
-            self.carid.append(carbody)
+        self.wheels = []
+        self.carbody = []
+        for pos in carpos[:2]:
+            wheel = body()
+            wheel.pos = pos
+            self.wheels.append(wheel)
+        carbody = body()
+        carbody.pos = carpos[0]
+        self.car = [carbody]
         self.time = QTimer(self)
         self.time.start(1)
         self.time.timeout.connect(self.timer)
@@ -61,10 +65,10 @@ class level(QMainWindow):
     
         for pos in self.backplan:
             self.hexpaint(qp, pos)
-
-        self.p.check_collision(self.carid, self.archive, self.backplan)
-
-        for obj in self.carid:
+        
+        self.p.check_collision(self.wheels, self.archive, self.backplan)
+        self.p.check_collision(self.carbody, self.wheels, self.backplan)
+        for obj in self.wheels:
             if obj.pcollision:
                 obj = self.p.moution(obj, "up") #сделать, только если проп с колесами, чтобы не обрабытывть фронт удары
                 obj.pcollision = False
@@ -76,6 +80,7 @@ class level(QMainWindow):
 
         #self.p.check_collision(self.carid, self.archive, self.backplan)
         for obj in self.archive:
+            self.p.rotation(self.p.rot_direction_chooser(obj), obj)
             self.hexpaint(qp, obj.pos)
 
     def mouseMoveEvent(self, event):

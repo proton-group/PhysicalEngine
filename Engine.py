@@ -66,22 +66,42 @@ class physics:
 
     def gravity(self, obj, s_archive, t_archive):
         newpos = []
+        collision = False
+        coordinate = self.minmax(obj.pos)
+        archeck = []
         for point in obj.pos:
+            #корректируем перемещение по коллизии
             newpos.append((point[0], point[1] + obj.speed * obj.time * (self.g*obj.time**2)/2))
-            if len(newpos) > 2 and newpos[-1][1] - newpos[-2][1] > 1:
-                print(newpos[-1][1] - newpos[-2][1])
-                archeck = [(newpos[-1][0], newpos[-2][1] - dots) for dots in range(int(newpos[-1][1] - newpos[-2][1]))]
-                print(archeck)
-                if self.prop_check(obj, archeck) == True:
-                    newpos.pop()
-                    break
-                testbody = body()
-                testbody.pos = archeck
-                for prop_pos in t_archive:
-                    if self.prop_check(testbody, prop_pos) == True:
-                        newpos.pop() #откуда дотс ты взял?
+            archeck = archeck + [(point[0], point[1] + dots) for dots in range(int(obj.speed * obj.time * (self.g*obj.time**2)/2))] 
+        if archeck != []:
+                #if self.prop_check(obj, archeck) == True:
+                    #newpos.pop()
+                    #break
+            testbody = body()
+            testbody.pos = archeck
+            for ident in s_archive:
+                if ident != obj:
+                    if self.prop_check(testbody, ident.pos) == True:
+                        if testbody.pcollision != False and testbody.pcollision != True:
+                            newpos = []
+                            for point in obj.pos:
+                                newpos.append((point[0], point[1] + testbody.pcollision[1] - coordinate[3]))
+                            obj.pcollision = testbody.pcollision
+                            collision = True
                         break
+            for prop_pos in t_archive:
+                if self.prop_check(testbody, prop_pos) == True:
+                    #откуда дотс ты взял?
+                    if testbody.pcollision != False and testbody.pcollision != True:
+                        newpos = []
+                        for point in obj.pos:
+                            newpos.append((point[0], point[1] + testbody.pcollision[1] - coordinate[3]))
+                        obj.pcollision = testbody.pcollision
+                        collision = True
+                    break
+
         obj.pos = newpos
+        self.rotation(self.rot_direction_chooser(obj), obj)
         obj.speed = self.g*obj.time
     
     def check_collision(self, f_archive, s_archive, t_archive):
@@ -174,7 +194,7 @@ class physics:
     def prop_check(self, id_a, pos_b):
         if id_a.pos != pos_b:
             if self.prop(id_a, pos_b):
-                pass
+                return False
             else:
                 self.rotation(self.rot_direction_chooser(id_a), id_a)
                 return True
