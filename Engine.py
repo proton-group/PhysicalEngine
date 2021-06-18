@@ -1,5 +1,5 @@
 #itertools, product
-import numpy as np 
+#import numpy as np 
 from math import sin, cos, sqrt
 class body:
     def __init__(self):
@@ -16,9 +16,10 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 10 #8
-        self.rot_speed = 0.0001
+        self.op_precision = 8 #8
+        self.rot_speed = 0.0005
         self.update_list = []
+        self.block = 0
 
     def rot_direction_chooser(self, obj):
         if obj.pcollision != False and obj.pcollision != True and obj.rot_check == False:
@@ -40,7 +41,7 @@ class physics:
         
         return (sumpoint_x/len(points), sumpoint_y/len(points))
 
-    def rotation(self, direction, obj): #для левого поворота ументшать угл, а не менять знак, чекать коллизию во время поворота
+    def rotation(self, direction, obj, archive): #для левого поворота ументшать угол, а не менять знак, чекать коллизию во время поворота
         if obj.pcollision != False and obj.pcollision != True:
             export = []
             if direction == "right":
@@ -50,7 +51,9 @@ class physics:
             for point in obj.pos:
                 r_point = (point[0] - obj.pcollision[0], point[1] - obj.pcollision[1])
                 export.append(((r_point[0] * cos(obj.ang) - r_point[1] * sin(obj.ang))+obj.pcollision[0], (r_point[0] * sin(obj.ang) + r_point[1] * cos(obj.ang))+obj.pcollision[1]))
+            self.prop(obj, archive)
             obj.pos = export
+            #self.rotation(direction, obj)
 
     def setGravConst(self, g):
         self.g = g
@@ -64,51 +67,57 @@ class physics:
     def settime(self, time, obj):
         obj.time = time * self.timespeed
 
-    def gravity(self, obj, s_archive, t_archive):
+    def gravity(self, obj, archive):
         newpos = []
+        collision = False
+        coordinate = self.minmax(obj.pos)
+        archeck = []
         for point in obj.pos:
+            #корректируем перемещение по коллизии
             newpos.append((point[0], point[1] + obj.speed * obj.time * (self.g*obj.time**2)/2))
-            if len(newpos) > 2 and newpos[-1][1] - newpos[-2][1] > 1:
-                print(newpos[-1][1] - newpos[-2][1])
-                archeck = [(newpos[-1][0], newpos[-2][1] - dots) for dots in range(int(newpos[-1][1] - newpos[-2][1]))]
-                print(archeck)
-                if self.prop_check(obj, archeck) == True:
-                    newpos[-1][1] = dots
-                    break
-                testbody = body()
-                testbody.pos = archeck
-                for prop_pos in t_archive:
-                    if self.prop_check(testbody, prop_pos) == True:
-                        newpos[-1][1] = dots
-                        break
+            archeck = archeck + [(point[0], point[1] + dots) for dots in range(int(obj.speed * obj.time * (self.g*obj.time**2)/2))] 
+        if archeck != []:
+            testbody = body()
+            testbody.pos = archeck
+            for ident in archive:
+                if ident != obj:
+                    if self.prop_check(testbody, ident):
+                        if testbody.pcollision != False and testbody.pcollision != True:
+                            newpos = []
+                            for point in obj.pos:
+                                newpos.append((point[0], point[1] + testbody.pcollision[1] - coordinate[3]))
+                            obj.pcollision = testbody.pcollision
+                            collision = True
+                        break              
+        if collision:
+            newpos = []
+            for point in obj.pos:  
+                newpos.append((point[0], point[1] + testbody.pcollision[1] - coordinate[3]))
         obj.pos = newpos
         obj.speed = self.g*obj.time
     
-    def check_collision(self, f_archive, s_archive, t_archive):
+    def check_collision(self, f_archive, s_archive):
         self.check = True
         count = 0
         #for x,y in idpoint(f_archive, s_archive):
         for id_a, id_b in self.idpoint(f_archive, s_archive):
-            if self.prop_check(id_a, id_b.pos) == True:
-                break
-        for id_a, prop_pos in self.idpoint(f_archive, t_archive):    
-            if self.prop_check(id_a, prop_pos) == True:
+            if self.prop_check(id_a, id_b):
                 break
         for id_a in f_archive:
             if id_a.pcollision == False:
                 self.settime(0.5, id_a)
-                self.gravity(id_a, s_archive, t_archive)
+                self.gravity(id_a, s_archive)
 
                 
-    def prop(self, obj_a, pos_b): #rotation, numpy for phis
+    def prop(self, obj_a, obj_b): #rotation, numpy for phis
         def overlap(apoints, bpoints):
             return (apoints[0] <= bpoints[0] + self.op_precision and apoints[0] >= bpoints[0] - self.op_precision) and (apoints[1] <= bpoints[1] + self.op_precision and apoints[1] >= bpoints[1] - self.op_precision)
         hitbox_a = self.minmax(obj_a.pos) # xmin, xmax, ymin, ymax
-        hitbox_b = self.minmax(pos_b)
+        hitbox_b = self.minmax(obj_b.pos)
         check = True
         if self.check_hitbox(hitbox_a, hitbox_b):
             for apoint in obj_a.pos:
-                for bpoint in pos_b:
+                for bpoint in obj_b.pos:
                     if overlap(apoint, bpoint):
                         self.add_rotation_object(obj_a, apoint)
                         check = False
@@ -124,8 +133,23 @@ class physics:
                 else:    
                     body.pcollision = True
 
-    def moution(self, car):
-        pass
+    def moution(self, car_part, direction):
+        newpos = []
+        if direction == "up" and self.block < 3:
+            for point in car_part.pos:
+                newpos.append((point[0], point[1]-10))
+            self.block += 1
+            car_part.pos = newpos
+        elif direction == "up":
+            for point in car_part.pos:
+                newpos.append((point[0], point[1]-3))
+            car_part.pos = newpos
+        if direction == "right":
+            for point in car_part.pos:
+                newpos.append((point[0]+40, point[1]))
+            self.block = 0
+            car_part.pos = newpos
+        return car_part
     
     def minmax(self, pos):
         #print(pos)
@@ -162,11 +186,11 @@ class physics:
                 for obj_b in s_arh:
                         yield (obj_a, obj_b)
 
-    def prop_check(self, id_a, pos_b):
-        if id_a.pos != pos_b:
-            if self.prop(id_a, pos_b):
-                pass
+    def prop_check(self, id_a, id_b):
+        if id_a.pos != id_b.pos:
+            if self.prop(id_a, id_b):
+                return False
             else:
-                self.rotation(self.rot_direction_chooser(id_a), id_a)
+                self.rotation(self.rot_direction_chooser(id_a), id_a, id_b)
                 return True
 
