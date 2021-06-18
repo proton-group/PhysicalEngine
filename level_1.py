@@ -2,53 +2,11 @@
 from Engine import physics, body
 import sys
 import ast
+from fifo import fifo
 from PySide6.QtCore import Qt, QRect, QEvent, QTimer
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QPushButton
 from PySide6.QtGui import QPainter, QColor, QFont, QPen, QIcon, QImage, QFont
 #rober serjic algoritms curs
-class Node:
-    def __init__(self):
-        self.memory = None
-        self.data = None
-class fifo:
-    def __init__(self):
-        self.base = Node()
-        self.len = 0
-        self.fifoblock = False
-
-    def add(self, data):
-        self._add(data, self.base)
-
-    def _add(self, data, node):
-        if self.base.data == None:
-            self.base.data = data
-        else:
-            if node.memory != None:
-                self._add(data, node.memory)
-            else:
-                node.memory = Node()
-                self.len += 1
-                node.memory.data = data
-    def read(self):
-        data = self.base.data
-        if not self.fifoblock:
-            self.add(data)
-        if self.base.memory != None:
-            self.base = self.base.memory
-            self.len -= 1
-        else:
-            self.base = Node()
-        return data
-
-    def control(self, instruction):
-        if instruction == "break":
-            self.fifoblock = True
-        if instruction == "lock":
-            self.fifoblock = False
-    def clear(self):
-        self.base = Node()
-
-
 
 class level(QMainWindow):
     def __init__(self, app, width):
@@ -77,7 +35,7 @@ class level(QMainWindow):
         self.paintfq.start(1)
         self.paintfq.timeout.connect(self.fq)
         self.timeblock = True
-        self.paint_buffer = fifo()
+        self.paint_buffer = []
         self.check = False
 
         self.update()
@@ -116,8 +74,8 @@ class level(QMainWindow):
     
     def painter(self, qp): # В класс и разбить на функции
         self.hexpaint(qp, self.pos)       
-        for i in range(self.paint_buffer.len):
-            self.hexpaint(qp, self.paint_buffer.read())
+        for i in range(len(self.paint_buffer)):
+            self.hexpaint(qp, self.paint_buffer[i])
 
     def mouseMoveEvent(self, event):
         self.pos.append((event.x(), event.y()))
@@ -157,11 +115,11 @@ class level(QMainWindow):
         self.paint_buffer.clear()
         if self.timeblock == True:
             #self.timeblock = not self.timeblock
-            self.paint_buffer.add(self.pos)
+            self.paint_buffer.append(self.pos)
             
         for obj in self.backplan:
             #self.hexpaint(qp, obj.pos)
-            self.paint_buffer.add(obj.pos)
+            self.paint_buffer.append(obj.pos)
             
         if self.timeblock == False:
             self.p.check_collision(self.car, self.archive)
@@ -175,7 +133,7 @@ class level(QMainWindow):
                 elif self.check:
                     obj = self.p.moution(obj, "right")
                 #self.hexpaint(qp, obj.pos)
-                self.paint_buffer.add(obj.pos)
+                self.paint_buffer.append(obj.pos)
         
         
         #self.hexpaint(qp, self.car[0].pos)
@@ -189,7 +147,7 @@ class level(QMainWindow):
         for obj in self.archive:
             #self.hexpaint(qp, obj.pos)
             if obj.pos != []:
-                self.paint_buffer.add(obj.pos)
+                self.paint_buffer.append(obj.pos)
         self.repaint()
         self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
 
