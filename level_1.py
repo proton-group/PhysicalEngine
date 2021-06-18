@@ -78,6 +78,8 @@ class level(QMainWindow):
         self.paintfq.timeout.connect(self.fq)
         self.timeblock = True
         self.paint_buffer = fifo()
+        self.check = False
+
         self.update()
 
     def closebuttons(self):
@@ -145,26 +147,32 @@ class level(QMainWindow):
         self.timeblock = False
 
     def fq(self):
-        self.paintfq.start(1000)
+        self.paintfq.start(1)
+        for id_a, id_b in self.p.idpoint(self.archive, self.archive):
+            self.p.prop_check(id_a, id_b)
         #self.repaint()
 
     def timer(self):
+        
         self.paint_buffer.clear()
-        #self.timeblock = not self.timeblock
-        self.paint_buffer.add(self.pos)
-    
+        if self.timeblock == True:
+            #self.timeblock = not self.timeblock
+            self.paint_buffer.add(self.pos)
+            
         for obj in self.backplan:
             #self.hexpaint(qp, obj.pos)
             self.paint_buffer.add(obj.pos)
-        
+            
         if self.timeblock == False:
             self.p.check_collision(self.car, self.archive)
             self.p.check_collision(self.car, self.backplan)
+            
             for obj in self.car:
                 if obj.pcollision:
+                    self.check = True
                     obj = self.p.moution(obj, "up") #сделать, только если проп с колесами, чтобы не обрабытывть фронт удары
                     obj.pcollision = False
-                else:
+                elif self.check:
                     obj = self.p.moution(obj, "right")
                 #self.hexpaint(qp, obj.pos)
                 self.paint_buffer.add(obj.pos)
@@ -172,9 +180,10 @@ class level(QMainWindow):
         
         #self.hexpaint(qp, self.car[0].pos)
         #print(self.p.rotation_objects)
-        
-        self.p.check_collision(self.archive, self.archive)
-        self.p.check_collision(self.archive, self.backplan)
+
+        if self.timeblock == True:
+            self.p.check_collision(self.archive, self.archive)
+            self.p.check_collision(self.archive, self.backplan)
 
         #self.p.check_collision(self.carid, self.archive, self.backplan)
         for obj in self.archive:

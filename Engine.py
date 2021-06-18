@@ -16,8 +16,8 @@ class physics:
     def __init__(self):
         self.g = 9.8
         self.timespeed = 1
-        self.op_precision = 10 #8
-        self.rot_speed = 0.001
+        self.op_precision = 8 #8
+        self.rot_speed = 0.0005
         self.update_list = []
         self.block = 0
 
@@ -137,7 +137,7 @@ class physics:
         newpos = []
         if direction == "up" and self.block < 3:
             for point in car_part.pos:
-                newpos.append((point[0], point[1]-15))
+                newpos.append((point[0], point[1]-10))
             self.block += 1
             car_part.pos = newpos
         elif direction == "up":
@@ -146,7 +146,7 @@ class physics:
             car_part.pos = newpos
         if direction == "right":
             for point in car_part.pos:
-                newpos.append((point[0]+20, point[1]))
+                newpos.append((point[0]+40, point[1]))
             self.block = 0
             car_part.pos = newpos
         return car_part
