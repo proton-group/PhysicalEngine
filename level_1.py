@@ -37,6 +37,13 @@ class level(QMainWindow):
         self.timeblock = True
         self.paint_buffer = []
         self.check = False
+        self.win = self.loadstate("wintext.txt")
+        self.winlist = []
+        for pos in self.win:
+            winobj = body()
+            winobj.pos = pos
+            self.winlist.append(winobj)
+        self.wincheck = False
 
         self.update()
 
@@ -86,6 +93,8 @@ class level(QMainWindow):
         if self.pos != []:
             new_body.pos = self.pos
             self.archive.append(new_body)
+            #self.archive.append(self.pos)
+            #self.savestate()
             self.pos = []
         #self.update()
         
@@ -93,7 +102,7 @@ class level(QMainWindow):
         self.close()
 
     def savestate(self):
-        f = open("backplan2.txt", "w")
+        f = open("backplan3.txt", "w")
         f.write(",".join(map(str, self.archive)) + "\n")
         f.close()
 
@@ -148,6 +157,9 @@ class level(QMainWindow):
             #self.hexpaint(qp, obj.pos)
             if obj.pos != []:
                 self.paint_buffer.append(obj.pos)
+        if self.wincheck == True:
+            for obj in self.winlist:
+                self.paint_buffer.append(obj.pos)
         self.winzone(self.car)
         #self.repaint()
         self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
@@ -156,7 +168,7 @@ class level(QMainWindow):
         zone = [800, 1500, 0, 2000]
         if self.p.minmax(car[0].pos)[0] > 1600:
             self.timeblock = True
-            #wintext = QLabel("YOU WIN")
+            self.wincheck = True
 
 
 
