@@ -105,10 +105,10 @@ class level(QMainWindow):
         self.timeblock = False
 
     def fq(self):
-        self.paintfq.start(1)
+        self.paintfq.start(50)
         for id_a, id_b in self.p.idpoint(self.archive, self.archive):
             self.p.prop_check(id_a, id_b)
-        #self.repaint()
+        self.repaint()
 
     def timer(self):
         
@@ -148,8 +148,16 @@ class level(QMainWindow):
             #self.hexpaint(qp, obj.pos)
             if obj.pos != []:
                 self.paint_buffer.append(obj.pos)
-        self.repaint()
+        self.winzone(self.car)
+        #self.repaint()
         self.time.start(10) #в теории каждый 10 миллисекунд достаточно, чтобы пользователь не заметил пропуски коллизий
+    
+    def winzone(self, car):
+        zone = [800, 1500, 0, 2000]
+        if self.p.minmax(car[0].pos)[0] > 1600:
+            self.timeblock = True
+            #wintext = QLabel("YOU WIN")
+
 
 
 

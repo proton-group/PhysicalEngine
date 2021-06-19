@@ -17,9 +17,9 @@ class physics:
         self.g = 9.8
         self.timespeed = 1
         self.op_precision = 8 #8
-        self.rot_speed = 0.0005
+        self.rot_speed = 0.001
         self.car_height = 6
-        self.car_speed = 20
+        self.car_speed = 30
         self.update_list = []
         self.block = 0
 
@@ -118,11 +118,13 @@ class physics:
         hitbox_b = self.minmax(obj_b.pos)
         check = True
         if self.check_hitbox(hitbox_a, hitbox_b):
+            self.stoprotation = True
             for apoint in obj_a.pos:
                 for bpoint in obj_b.pos:
                     if overlap(apoint, bpoint):
                         self.add_rotation_object(obj_a, apoint)
                         check = False
+            self.stoprotation = False
         return check
 
     def add_rotation_object(self, body, cpoint):
@@ -193,6 +195,7 @@ class physics:
             if self.prop(id_a, id_b):
                 return False
             else:
-                self.rotation(self.rot_direction_chooser(id_a), id_a, id_b)
+                if not self.stoprotation:
+                    self.rotation(self.rot_direction_chooser(id_a), id_a, id_b)
                 return True
 
