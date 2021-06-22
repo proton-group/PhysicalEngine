@@ -1,5 +1,6 @@
 #itertools, product
 #import numpy as np 
+from log import createlog
 from math import sin, cos, sqrt
 class body:
     def __init__(self):
@@ -17,7 +18,9 @@ class physics:
         self.g = 9.8
         self.timespeed = 1
         self.op_precision = 8 #8
-        self.rot_speed = 0.0005
+        self.rot_speed = 0.001
+        self.car_height = 6
+        self.car_speed = 30
         self.update_list = []
         self.block = 0
 
@@ -71,6 +74,7 @@ class physics:
         newpos = []
         collision = False
         coordinate = self.minmax(obj.pos)
+        #createlog(str(coordinate), "Minmax work")
         archeck = []
         for point in obj.pos:
             #корректируем перемещение по коллизии
@@ -116,11 +120,15 @@ class physics:
         hitbox_b = self.minmax(obj_b.pos)
         check = True
         if self.check_hitbox(hitbox_a, hitbox_b):
+            #createlog(str(hitbox_a), "first hitbox")
+            #createlog(str(hitbox_b), "second hitbox for compare")
+            self.stoprotation = True
             for apoint in obj_a.pos:
                 for bpoint in obj_b.pos:
                     if overlap(apoint, bpoint):
                         self.add_rotation_object(obj_a, apoint)
                         check = False
+            self.stoprotation = False
         return check
 
     def add_rotation_object(self, body, cpoint):
@@ -137,7 +145,7 @@ class physics:
         newpos = []
         if direction == "up" and self.block < 3:
             for point in car_part.pos:
-                newpos.append((point[0], point[1]-10))
+                newpos.append((point[0], point[1]-self.car_height))
             self.block += 1
             car_part.pos = newpos
         elif direction == "up":
@@ -146,13 +154,13 @@ class physics:
             car_part.pos = newpos
         if direction == "right":
             for point in car_part.pos:
-                newpos.append((point[0]+40, point[1]))
+                newpos.append((point[0]+self.car_speed, point[1]))
             self.block = 0
             car_part.pos = newpos
         return car_part
     
     def minmax(self, pos):
-        #print(pos)
+        #createlog(str(pos == None), "True if pos its None")
         xmin = pos[0][0]
         xmax = 0
         ymin = pos[0][1]
@@ -191,6 +199,7 @@ class physics:
             if self.prop(id_a, id_b):
                 return False
             else:
-                self.rotation(self.rot_direction_chooser(id_a), id_a, id_b)
+                if not self.stoprotation:
+                    self.rotation(self.rot_direction_chooser(id_a), id_a, id_b)
                 return True
 

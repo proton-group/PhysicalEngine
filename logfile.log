@@ -1,0 +1,31 @@
+
+2021-06-22 16:33:43 :: False :: True if pos its None
+2021-06-22 16:33:43 :: False :: True if pos its None
+
+2021-06-22 16:35:53 :: (563, 840, 451, 687) :: Minmax work
+2021-06-22 16:35:53 :: (563, 840, 451.0, 687.0) :: Minmax work
+2021-06-22 16:35:53 :: (563, 840, 454.00125, 690.00125) :: Minmax work
+2021-06-22 16:35:53 :: (563, 840, 457.00250000000005, 693.0025) :: Minmax work
+2021-06-22 16:35:53 :: (563, 840, 460.0037500000001, 696.0037500000001) :: Minmax work
+2021-06-22 16:35:53 :: (563, 840, 463.0050000000001, 699.0050000000001) :: Minmax work
+2021-06-22 16:38:30 :: (583, 1006, 518.0, 736.0) :: first hitbox
+2021-06-22 16:38:30 :: (24, 1919, 670, 1079) :: second hitbox for compare
+2021-06-22 16:38:30 :: (583, 1006, 518.0, 738.0) :: first hitbox
+2021-06-22 16:38:30 :: (24, 1919, 670, 1079) :: second hitbox for compare
+
+2021-06-22 16:40:30 :: True :: Window closed
+2021-06-22 16:40:32 :: True :: Window closed
+2021-06-22 16:40:33 :: True :: Window closed
+2021-06-22 16:40:35 :: True :: Window closed
+2021-06-22 16:41:30 :: True :: Window lvl1 open
+2021-06-22 16:41:31 :: True :: Window lvl1 closed
+2021-06-22 16:41:32 :: True :: Window lvl1 open
+2021-06-22 16:41:33 :: True :: Window lvl1 closed
+2021-06-22 16:41:34 :: True :: Window lvl1 open
+2021-06-22 16:41:36 :: True :: Window lvl1 closed
+
+2021-06-22 16:42:24 :: True :: Window lvl1 open
+2021-06-22 16:42:26 :: True :: Window lvl1 closed
+2021-06-22 16:42:26 :: True :: Window rules open
+2021-06-22 16:43:01 :: True :: Window lvl1 open
+2021-06-22 16:43:04 :: True :: Window lvl1 closed
