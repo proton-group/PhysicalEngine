@@ -1,5 +1,6 @@
 #itertools, product
 #import numpy as np 
+from log import createlog
 from math import sin, cos, sqrt
 class body:
     def __init__(self):
@@ -73,6 +74,7 @@ class physics:
         newpos = []
         collision = False
         coordinate = self.minmax(obj.pos)
+        #createlog(str(coordinate), "Minmax work")
         archeck = []
         for point in obj.pos:
             #корректируем перемещение по коллизии
@@ -118,6 +120,8 @@ class physics:
         hitbox_b = self.minmax(obj_b.pos)
         check = True
         if self.check_hitbox(hitbox_a, hitbox_b):
+            #createlog(str(hitbox_a), "first hitbox")
+            #createlog(str(hitbox_b), "second hitbox for compare")
             self.stoprotation = True
             for apoint in obj_a.pos:
                 for bpoint in obj_b.pos:
@@ -156,7 +160,7 @@ class physics:
         return car_part
     
     def minmax(self, pos):
-        #print(pos)
+        #createlog(str(pos == None), "True if pos its None")
         xmin = pos[0][0]
         xmax = 0
         ymin = pos[0][1]
