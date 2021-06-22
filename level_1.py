@@ -6,6 +6,7 @@ from fifo import fifo
 from PySide6.QtCore import Qt, QRect, QEvent, QTimer
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QPushButton
 from PySide6.QtGui import QPainter, QColor, QFont, QPen, QIcon, QImage, QFont
+from log import createlog
 #rober serjic algoritms curs
 
 class level(QMainWindow):
@@ -99,6 +100,7 @@ class level(QMainWindow):
         #self.update()
         
     def closeit(self):
+        #createlog("True", "Window lvl1 closed")
         self.close()
 
     def savestate(self):
